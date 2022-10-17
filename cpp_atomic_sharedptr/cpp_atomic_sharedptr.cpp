@@ -14,6 +14,7 @@ std::atomic<float> deltaTime = 0;
 std::atomic<float> timestamp = 0;
 std::atomic<bool> exitFlag = false;
 std::atomic<bool> pauseInput = false;
+std::atomic<bool> needRedisplay = true;
 
 int cwx = 800; int cwy = 600;
 
@@ -44,10 +45,11 @@ int main(int argc, char **argv)
 	while (true)
 	{
 		locker1.lock();
+		deltaTime = getDeltaTime();
 		if (!pauseInput)
 		{
 			mMgr->pushForw(timestamp); //appending current values
-			deltaTime = getDeltaTime();
+			if (mMgr->getRedispFlag()) needRedisplay = true;			
 			timestamp = timestamp + deltaTime;
 			if (timestamp > 1000000) timestamp = 0.0f;
 		}
@@ -151,33 +153,36 @@ void cbReshape(int wx, int wy)
 }
 void cbDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	//renew window size
-	float orthoLeft = mMgr->getXMin();
-	float orthoRight = mMgr->getXMax();
-	float orthoBottom = mMgr->getYMin();
-	float orthoTop = mMgr->getYMax();
-
-	gluOrtho2D(orthoLeft,orthoRight,orthoTop,orthoBottom);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	//draw stuff
-
-	int l = mMgr->getMaxVSize();
-
-	glBegin(GL_LINE_STRIP);
-	glColor3f(1.0f,0.0f,0.0f);
-	for (int i = 0; i < l; i++)
+	if (needRedisplay)
 	{
-		locker2.lock();
-		glVertex2f(mMgr->getChartX(i), mMgr->getChartY(i));
-		locker2.unlock();
-	}
-	glEnd();
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	glutSwapBuffers();	
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		//renew window size
+		float orthoLeft = mMgr->getXMin();
+		float orthoRight = mMgr->getXMax();
+		float orthoBottom = mMgr->getYMin();
+		float orthoTop = mMgr->getYMax();
+
+		gluOrtho2D(orthoLeft, orthoRight, orthoTop, orthoBottom);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		//draw stuff
+
+		int l = mMgr->getMaxVSize();
+
+		glBegin(GL_LINE_STRIP);
+		glColor3f(1.0f, 0.0f, 0.0f);
+		for (int i = 0; i < l; i++)
+		{
+			locker2.lock();
+			glVertex2f(mMgr->getChartX(i), mMgr->getChartY(i));
+			locker2.unlock();
+		}
+		glEnd();
+
+		glutSwapBuffers();
+	}
 }

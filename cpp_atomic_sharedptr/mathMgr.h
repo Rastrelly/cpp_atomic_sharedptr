@@ -20,6 +20,7 @@ private:
 	int xl;
 	float xstep;
 	float lastTs;
+	bool redispFlag;
 	void removeFirst();
 	void appendValue(pt val);
 	void findExtremes();
@@ -39,6 +40,8 @@ public:
 	float getChartY(int i);
 
 	float getMaxVSize();
+
+	bool getRedispFlag() { return redispFlag; }
 
 	void pushForw(float ts);
 	int getVSize() { return chartstate.size(); }

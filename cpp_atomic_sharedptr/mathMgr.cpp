@@ -12,6 +12,7 @@ mathMgr::mathMgr()
 	xstep = 0.1;
 	lastTs = 0;
 	canDraw = true;
+	redispFlag = true;
 }
 
 float mathMgr::func(float x)
