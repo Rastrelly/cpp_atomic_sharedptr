@@ -30,6 +30,7 @@ public:
 	void setA(float val) { a = val; }
 	void setF(float val) { f = val; }
 	void setXI(float val) { xstep = val; }
+	void setRedispFlag(bool val) { redispFlag = val; }
 
 	float getXMin() { return xmin; }
 	float getXMax() { return xmax; }
@@ -41,7 +42,7 @@ public:
 
 	float getMaxVSize();
 
-	bool getRedispFlag() { return redispFlag; }
+	bool getRedispFlag() { return redispFlag; }	
 
 	void pushForw(float ts);
 	int getVSize() { return chartstate.size(); }

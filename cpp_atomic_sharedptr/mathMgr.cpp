@@ -44,8 +44,10 @@ void mathMgr::pushForw(float ts)
 		if ((ts - lastTs) >= xstep)
 		{
 			lastTs = ts;
+			printf("TS=%f; VL=%d\n",ts,getVSize());
 			appendValue({ ts, func(ts) });
 			findExtremes();
+			setRedispFlag(true);
 		}
 }
 
@@ -54,11 +56,12 @@ void mathMgr::findExtremes()
 	
 	if (getVSize() > 0)
 	{
+		int l = getMaxVSize();
 		xmin = chartstate[0].x;
-		xmax = chartstate[getVSize() - 1].x;
+		xmax = chartstate[l - 1].x;
 		ymin = chartstate[0].y;
 		ymax = chartstate[0].y;
-		for (int i = 0; i < getVSize(); i++)
+		for (int i = 0; i < l; i++)
 		{
 			float cnd = chartstate[i].y;
 			if (cnd < ymin) ymin = cnd;
@@ -76,6 +79,7 @@ float mathMgr::getChartX(int i) {
 	else
 		return 0;
 }
+
 float mathMgr::getChartY(int i) {
 	if (canDraw)
 		if (i < getVSize())

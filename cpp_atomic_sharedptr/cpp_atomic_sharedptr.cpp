@@ -44,17 +44,23 @@ int main(int argc, char **argv)
 
 	while (true)
 	{
-		locker1.lock();
 		deltaTime = getDeltaTime();
 		if (!pauseInput)
 		{
+			locker1.lock();
+			system("cls");
 			mMgr->pushForw(timestamp); //appending current values
-			if (mMgr->getRedispFlag()) needRedisplay = true;			
+			if (mMgr->getRedispFlag())
+			{
+				mMgr->setRedispFlag(false);
+				needRedisplay = true;
+			}
+			locker1.unlock();
 			timestamp = timestamp + deltaTime;
 			if (timestamp > 1000000) timestamp = 0.0f;
+			printf("*TS=%f\n", (float)timestamp);
 		}
-		if (exitFlag) break;
-		locker1.unlock();
+		if (exitFlag) break;		
 	}
 
 	thr1.join();
@@ -75,7 +81,7 @@ void funcThr1()
 		{
 			locker1.lock();
 			pauseInput = true;
-			float xi = 0;;
+			float xi = 0.1;
 			printf("Input XI\n");
 			std::cin >> xi;
 			mMgr->setXI(xi);
@@ -87,7 +93,7 @@ void funcThr1()
 		{
 			locker1.lock();
 			pauseInput = true;
-			float a = 0; float f = 0;
+			float a = 100; float f = 100;
 			printf("Input A F\n");
 			std::cin >> a >> f;
 			mMgr->setA(a);
@@ -139,7 +145,10 @@ float getDeltaTime()
 
 void cbIdle()
 {
-	cbDisplay();
+	if (needRedisplay)
+	{
+		cbDisplay();
+	}
 	if (exitFlag)
 	{
 		glutLeaveMainLoop();
@@ -149,12 +158,13 @@ void cbIdle()
 void cbReshape(int wx, int wy)
 {
 	glViewport(0, 0, wx, wy);
-	cwx = wx; cwy = wy;
+	cwx = wx; cwy = wy;	
 }
+
 void cbDisplay()
 {
-	if (needRedisplay)
-	{
+		needRedisplay = false;
+
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glMatrixMode(GL_PROJECTION);
@@ -184,5 +194,4 @@ void cbDisplay()
 		glEnd();
 
 		glutSwapBuffers();
-	}
 }
